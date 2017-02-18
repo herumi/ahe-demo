@@ -8,6 +8,8 @@
 #include <string>
 #include "enc-dec.hpp"
 #include <cybozu/socket.hpp>
+#include <cybozu/option.hpp>
+
 /*
 	0 : B
 	1 : G
@@ -35,9 +37,20 @@ void getEdge(uint8_t *dst, const uint8_t *src, size_t w, size_t h)
 	}
 }
 
-int main()
+int main(int argc, char *argv[])
 	try
 {
+	int port;
+	std::string server;
+	cybozu::Option opt;
+	opt.appendOpt(&port, g_port, "p", " : port");
+	opt.appendOpt(&server, "localhost", "s", " : server");
+	opt.appendHelp("h", " : show this message");
+	if (!opt.parse(argc, argv)) {
+		opt.usage();
+		return 1;
+	}
+
 	const char *winName = "window";
 	const double rate = 0.25;
 	cv::VideoCapture cap;
@@ -57,7 +70,6 @@ int main()
 	const int range = 4 * 256;
 	sec.setCache(-range, range);
 	const PublicKey& pub = sec.getPublicKey();
-
 
 	bool doEdge = false;
 	cv::Mat org, image;
@@ -95,7 +107,7 @@ int main()
 				encVec(encY, pub, mono.data, w * h);
 				puts("edge");
 				cybozu::Socket client;
-				client.connect("localhost", g_port);
+				client.connect(server, port);
 
 				puts("send size");
 				cybozu::save(client, w);

@@ -1,12 +1,22 @@
+#include <cybozu/option.hpp>
 #include <cybozu/socket.hpp>
 #include "enc-dec.hpp"
 
-int main()
+int main(int argc, char *argv[])
 	try
 {
+	int port;
+	cybozu::Option opt;
+	opt.appendOpt(&port, g_port, "p", " : port");
+	opt.appendHelp("h", " : show this message");
+	if (!opt.parse(argc, argv)) {
+		opt.usage();
+		return 1;
+	}
+
 	initAhe();
 	cybozu::Socket server;
-	server.bind(g_port);
+	server.bind(port);
 	for (;;) {
 		while (!server.queryAccept()) {
 		}
