@@ -1,5 +1,7 @@
+#ifdef _MSC_VER
 #pragma comment(lib, "opencv_world310.lib")
 #pragma warning(disable: 4819)
+#endif
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
