@@ -1,27 +1,33 @@
-#define MCL_USE_AHE192
-#include <mcl/ahe.hpp>
-#include <cybozu/serializer.hpp>
-#include <vector>
+#pragma once
+#include <mcl/she.hpp>
 
-using namespace mcl::ahe192;
-
+typedef mcl::she::SecretKey SecretKey;
+typedef mcl::she::PublicKey PublicKey;
+typedef mcl::she::PrecomputedPublicKey PrecomputedPublicKey;
+typedef mcl::she::CipherTextG1 CipherText;
 typedef std::vector<CipherText> CipherTextVec;
+
+inline void initAhe()
+{
+	mcl::she::initG1only(mcl::ecparam::secp256k1, 2048, 1);
+}
 
 // global constant
 const uint16_t g_port = 40000;
 
-void encVec(CipherTextVec& ctv, const PublicKey& pub, const uint8_t *p, size_t n)
+template<class PK>
+void encVec(CipherTextVec& ctv, const PK& pub, const uint8_t *p, size_t n)
 {
 	ctv.resize(n);
 	for (size_t i = 0; i < n; i++) {
-		pub.enc(ctv[i], p[i], mcl::getRandomGenerator());
+		pub.enc(ctv[i], p[i]);
 	}
 }
 
 void decVec(uint8_t *p, size_t  n, const CipherTextVec& ctv, const SecretKey& sec)
 {
 	for (size_t i = 0; i < n; i++) {
-		int v = sec.dec(ctv[i]);
+		int v = (int)sec.dec(ctv[i]);
 		v = (v < 0) ? 0 : (v > 255) ? 255 : v;
 		p[i] = uint8_t(255 - v);
 	}
@@ -35,7 +41,7 @@ void getEncEdge(CipherTextVec& edge, const CipherTextVec& encY, size_t w, size_t
 			size_t i = x + y * w;
 			CipherText& t = edge[i];
 			t = encY[i];
-			t.mul(-4);
+			CipherText::mul(t, t, -4);
 			t.add(encY[i + 1]);
 			t.add(encY[i - 1]);
 			t.add(encY[i + w]);

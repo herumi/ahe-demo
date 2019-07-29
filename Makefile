@@ -9,6 +9,7 @@ $(MCL_LIB):
 	$(MAKE) -C ../mcl
 
 CFLAGS+=-I../mcl/include
+LDFLAGS+=-lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_videoio -lcrypto -lssl
 
 ALL_SRC=server.cpp main.cpp
 server.o: server.cpp
@@ -18,6 +19,9 @@ server.o: server.cpp
 	$(PRE)$(CXX) $(CFLAGS) -c $< -o $@ -MMD -MP -MF $(@:.o=.d)
 %.exe: %.o $(MCL_LIB)
 	$(PRE)$(CXX) $< -o $@ -lmcl -L../mcl/lib $(LDFLAGS)
+
+clean:
+	rm -rf *.exe *.o *.d
 
 DEPEND_FILE=$(ALL_SRC:.cpp=.d)
 -include $(DEPEND_FILE)

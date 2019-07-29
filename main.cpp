@@ -1,10 +1,11 @@
 #ifdef _MSC_VER
-#pragma comment(lib, "opencv_world310.lib")
+#pragma comment(lib, "opencv_world411.lib")
 #pragma warning(disable: 4819)
 #endif
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/highgui/highgui_c.h>
 #include <opencv2/imgproc.hpp>
 #include <iostream>
 #include <string>
@@ -68,10 +69,11 @@ int main(int argc, char *argv[])
 
 	initAhe();
 	SecretKey sec;
-	initSecretKey(sec);
-	const int range = 4 * 256;
-	sec.setCache(-range, range);
-	const PublicKey& pub = sec.getPublicKey();
+	sec.setByCSPRNG();
+	PublicKey pub;
+	sec.getPublicKey(pub);
+	PrecomputedPublicKey ppub;
+	ppub.init(pub);
 
 	bool doEdge = false;
 	cv::Mat org, image;
@@ -106,7 +108,7 @@ int main(int argc, char *argv[])
 #if 1
 			{
 				CipherTextVec encY;
-				encVec(encY, pub, mono.data, w * h);
+				encVec(encY, ppub, mono.data, w * h);
 				puts("edge");
 				cybozu::Socket client;
 				client.connect(server, port);
