@@ -1,5 +1,5 @@
 #ifdef _MSC_VER
-#pragma comment(lib, "opencv_world411.lib")
+#pragma comment(lib, "opencv_world454.lib")
 #pragma warning(disable: 4819)
 #endif
 #include <opencv2/core.hpp>
@@ -12,6 +12,7 @@
 #include "enc-dec.hpp"
 #include <cybozu/socket.hpp>
 #include <cybozu/option.hpp>
+#include <cybozu/time.hpp>
 
 /*
 	0 : B
@@ -45,9 +46,11 @@ int main(int argc, char *argv[])
 {
 	int port;
 	std::string server;
+	double rate;
 	cybozu::Option opt;
 	opt.appendOpt(&port, g_port, "p", " : port");
 	opt.appendOpt(&server, "localhost", "s", " : server");
+	opt.appendOpt(&rate, 0.25, "r", " : rate");
 	opt.appendHelp("h", " : show this message");
 	if (!opt.parse(argc, argv)) {
 		opt.usage();
@@ -55,7 +58,6 @@ int main(int argc, char *argv[])
 	}
 
 	const char *winName = "window";
-	const double rate = 0.25;
 	cv::VideoCapture cap;
 	if (!cap.open(0)) {
 		puts("can't open camera");
@@ -113,6 +115,7 @@ int main(int argc, char *argv[])
 				cybozu::Socket client;
 				client.connect(server, port);
 
+				double begin = cybozu::GetCurrentTimeSec();
 				puts("send size");
 				cybozu::save(client, w);
 				cybozu::save(client, h);
@@ -123,6 +126,7 @@ int main(int argc, char *argv[])
 				cybozu::load(edge, client);
 				puts("dec");
 				decVec(mono.data, w * h, edge, sec);
+				printf("time=%f msec\n", (cybozu::GetCurrentTimeSec() - begin) * 1e3);
 				puts("end");
 			}
 #else

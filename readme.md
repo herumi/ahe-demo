@@ -12,15 +12,12 @@
 * ファイルを取得する
 ```
 md work
-git clone git@github.com:herumi/xbyak
-git clone git@github.com:herumi/cybozulib
-git clone git@github.com:herumi/cybozulib_ext
 git clone git@github.com:herumi/mcl
 git clone git@github.com:herumi/ade_demo
 ```
 
 `mk.bat`の`OPENCV_INC`と`OPENCV_LIB`を自分がインストールしたディレクトリに変更する。
-`ade_demo`ディレクトリに`opencv_world310.dll`をコピーする。
+`ade_demo`ディレクトリに`opencv_world454.dll`をコピーする。
 
 ```
 cd ahe-demo
